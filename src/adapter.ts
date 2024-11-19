@@ -1,4 +1,6 @@
 import { STATUS_CODE } from "jsr:@std/http/status";
+import { create, getNumericDate } from "jsr:@emrahcom/jwt";
+import type { Algorithm } from "jsr:@emrahcom/jwt/algorithm";
 import {
   DEBUG,
   HOSTNAME,
@@ -24,6 +26,11 @@ const KEYCLOAK_TOKEN_URI = `${KEYCLOAK_ORIGIN_INTERNAL}` +
   `/realms/${KEYCLOAK_REALM}/protocol/openid-connect/token`;
 const KEYCLOAK_USERINFO_URI = `${KEYCLOAK_ORIGIN_INTERNAL}` +
   `/realms/${KEYCLOAK_REALM}/protocol/openid-connect/userinfo`;
+let CRYPTO_KEY: CryptoKey;
+
+interface StateType {
+  [key: string]: boolean | string;
+}
 
 // -----------------------------------------------------------------------------
 // HTTP response for OK
@@ -59,6 +66,25 @@ function unauthorized(): Response {
   return new Response(null, {
     status: STATUS_CODE.Unauthorized,
   });
+}
+
+// -----------------------------------------------------------------------------
+// setCryptoKey
+// -----------------------------------------------------------------------------
+async function setCryptoKey() {
+  const encoder = new TextEncoder();
+  const keyData = encoder.encode(JWT_APP_SECRET);
+
+  CRYPTO_KEY = await crypto.subtle.importKey(
+    "raw",
+    keyData,
+    {
+      name: "HMAC",
+      hash: JWT_HASH,
+    },
+    true,
+    ["sign"],
+  );
 }
 
 // -----------------------------------------------------------------------------
@@ -144,18 +170,59 @@ async function getUserInfo(
 // generateJwt
 // -----------------------------------------------------------------------------
 async function generateJwt(
-  host: string,
-  jsonState: string,
+  sub: string,
+  room: string,
   userInfo: Record<string, unknown>,
 ): Promise<string> {
-  const state = JSON.parse(jsonState);
+  const header = { typ: "JWT", alg: JWT_ALG as Algorithm };
+  const payload = {
+    aud: JWT_APP_ID,
+    iss: JWT_APP_ID,
+    sub: sub,
+    room: room,
+    iat: getNumericDate(0),
+    nbf: getNumericDate(0),
+    exp: getNumericDate(JWT_EXP_SECOND),
+    context: createContext(userInfo),
+  };
 
-  await console.log(host);
-  await console.log(state);
-  await console.log(userInfo);
-  await console.log(createContext(userInfo));
+  return await create(header, payload, CRYPTO_KEY);
+}
 
-  return "jwt";
+// -----------------------------------------------------------------------------
+// generateHash
+// -----------------------------------------------------------------------------
+function generateHash(jsonState: string): string {
+  let hash = "#adapter=jitsi-keycloak-adapter-v2";
+
+  try {
+    const state = JSON.parse(jsonState) as StateType;
+    for (const key in state) {
+      hash = `${hash}&${encodeURIComponent(key)}`;
+      hash = `${hash}=${encodeURIComponent(JSON.stringify(state[key]))}`;
+    }
+  } catch (e) {
+    console.log(e);
+  }
+
+  return hash;
+}
+
+// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
+function getRedirectUri(
+  host: string,
+  tenant: string,
+  room: string,
+  jwt: string,
+  hash: string,
+): string {
+  console.log(host);
+  console.log(tenant);
+  console.log(room);
+  console.log(jwt);
+  console.log(hash);
+  return "url";
 }
 
 // -----------------------------------------------------------------------------
@@ -172,6 +239,10 @@ async function tokenize(req: Request): Promise<Response> {
     if (!code) throw "code not found";
     const jsonState = searchParams.get("state");
     if (!jsonState) throw "state not found";
+    const state = JSON.parse(jsonState);
+    const tenant = state.tenant;
+    const sub = tenant || host;
+    const room = state.room;
 
     // Get the access token from Keycloak using the short-term auth code.
     const accessToken = await getAccessToken(host, code, jsonState);
@@ -180,8 +251,17 @@ async function tokenize(req: Request): Promise<Response> {
     const userInfo = await getUserInfo(accessToken);
 
     // Generate Jitsi token.
-    const jwt = await generateJwt(host, jsonState, userInfo);
+    const jwt = await generateJwt(sub, room, userInfo);
+
+    // Generate Jitsi hash.
+    const hash = generateHash(jsonState);
+
+    // Get redirectUri
+    const redirectUri = getRedirectUri(host, tenant, room, jwt, hash);
+
     console.log(jwt);
+    console.log(hash);
+    console.log(redirectUri);
 
     return ok("tokenize");
   } catch (e) {
@@ -215,7 +295,7 @@ async function handler(req: Request): Promise<Response> {
 // -----------------------------------------------------------------------------
 // main
 // -----------------------------------------------------------------------------
-function main() {
+async function main() {
   console.log(`KEYCLOAK_ORIGIN: ${KEYCLOAK_ORIGIN}`);
   console.log(`KEYCLOAK_ORIGIN_INTERNAL: ${KEYCLOAK_ORIGIN_INTERNAL}`);
   console.log(`KEYCLOAK_REALM: ${KEYCLOAK_REALM}`);
@@ -229,6 +309,8 @@ function main() {
   console.log(`HOSTNAME: ${HOSTNAME}`);
   console.log(`PORT: ${PORT}`);
   console.log(`DEBUG: ${DEBUG}`);
+
+  await setCryptoKey();
 
   Deno.serve({
     hostname: HOSTNAME,
