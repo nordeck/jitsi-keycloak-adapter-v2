@@ -17,6 +17,9 @@ import {
 } from "./config.ts";
 import { createContext } from "./context.ts";
 
+// -----------------------------------------------------------------------------
+// Globals
+// -----------------------------------------------------------------------------
 const KEYCLOAK_AUTH_URI = `${KEYCLOAK_ORIGIN}` +
   `/realms/${KEYCLOAK_REALM}/protocol/openid-connect/auth` +
   `?client_id=${KEYCLOAK_CLIENT_ID}&response_mode=${KEYCLOAK_MODE}` +
@@ -88,7 +91,7 @@ async function setCryptoKey() {
 }
 
 // -----------------------------------------------------------------------------
-// Redirect the user to Keycloak to get the short-term auth code.
+// Redirect the user to Keycloak's auth page to get the short-term auth code.
 // -----------------------------------------------------------------------------
 function auth(req: Request): Response {
   try {
@@ -103,9 +106,9 @@ function auth(req: Request): Response {
     const state = encodeURIComponent(jsonState);
     const qs = encodeURIComponent(`state=${state}`);
     const redirectUri = `https://${host}/oidc/tokenize?${qs}`;
-    const target = `${KEYCLOAK_AUTH_URI}&redirect_uri=${redirectUri}`;
+    const keycloakAuthPage = `${KEYCLOAK_AUTH_URI}&redirect_uri=${redirectUri}`;
 
-    return Response.redirect(target, STATUS_CODE.Found);
+    return Response.redirect(keycloakAuthPage, STATUS_CODE.Found);
   } catch (e) {
     console.error(e);
     return unauthorized();
@@ -113,18 +116,19 @@ function auth(req: Request): Response {
 }
 
 // -----------------------------------------------------------------------------
+// - Sub is tenant (if exists). If not then sub is the meeting domain (host).
 // - Tenant is the previous folder in Jitsi's path before the room name.
-// - Path (as input) doesn't contain the room name, so get the last folder.
-// - Path doesn't exist all the times, so it may be undefined.
+// - Path (as input) doesn't contain the room name. So, get the last folder.
+// - Path doesn't exist all the times. So, it may be undefined.
 // -----------------------------------------------------------------------------
 function getSub(host: string, path: string | undefined): string {
   if (!path) return host;
 
   // trim trailing slashes
-  let tenant = path.replace(/\/+$/g, "");
+  path = path.replace(/\/+$/g, "");
 
   // get the latest folder from the path
-  tenant = tenant.split("/").reverse()[0];
+  const tenant = path.split("/").reverse()[0];
 
   return tenant;
 }
@@ -148,6 +152,7 @@ async function getAccessToken(
   data.append("redirect_uri", redirectUri);
   data.append("code", code);
 
+  // Send the request for the access token.
   const res = await fetch(KEYCLOAK_TOKEN_URI, {
     headers: {
       "Accept": "application/json",
@@ -168,6 +173,7 @@ async function getAccessToken(
 async function getUserInfo(
   accessToken: string,
 ): Promise<Record<string, unknown>> {
+  // Send request for the user info.
   const res = await fetch(KEYCLOAK_USERINFO_URI, {
     headers: {
       "Accept": "application/json",
@@ -177,14 +183,14 @@ async function getUserInfo(
   });
   const userInfo = await res.json();
 
-  // sub is the mandotary field for successful request
+  // Sub is the mandotary field in response for a successful request.
   if (!userInfo.sub) throw "no user info";
 
   return userInfo;
 }
 
 // -----------------------------------------------------------------------------
-// Generate Jitsi's token.
+// Generate Jitsi's token (jwt).
 // -----------------------------------------------------------------------------
 async function generateJwt(
   sub: string,
@@ -214,6 +220,7 @@ function generateHash(jsonState: string): string {
 
   try {
     const state = JSON.parse(jsonState) as StateType;
+
     for (const key in state) {
       hash = `${hash}&${encodeURIComponent(key)}`;
       hash = `${hash}=${encodeURIComponent(JSON.stringify(state[key]))}`;
@@ -226,9 +233,9 @@ function generateHash(jsonState: string): string {
 }
 
 // -----------------------------------------------------------------------------
-// Create Jitsi's URI for the meeting session with a token and hashes.
+// Create URI of the Jitsi meeting with a token and hashes.
 // -----------------------------------------------------------------------------
-function getRedirectUri(
+function getMeetingUri(
   host: string,
   path: string,
   room: string,
@@ -245,11 +252,11 @@ function getRedirectUri(
 }
 
 // -----------------------------------------------------------------------------
-// - User comes here after redirected by auth endpoint with a short-term code
+// - User comes here after redirected by the auth page with a short-term code
 // - Get Keycloak's access token by using this short-term auth code
 // - Get the user info from Keycloak by using the access code
 // - Generate Jitsi's token by using the user info
-// - Redirect the user to Jitsi with a token and hashes
+// - Redirect the user to Jitsi's meeting page with a token and hashes
 // -----------------------------------------------------------------------------
 async function tokenize(req: Request): Promise<Response> {
   try {
@@ -278,12 +285,12 @@ async function tokenize(req: Request): Promise<Response> {
     // Generate Jitsi hash.
     const hash = generateHash(jsonState);
 
-    // Get redirectUri.
+    // Get URI of the Jitsi meeting.
     // Use unmodified path (state.tenant) which is different than the tenant in
     // JWT context.
-    const redirectUri = getRedirectUri(host, state.tenant, room, jwt, hash);
+    const meetingPage = getMeetingUri(host, state.tenant, room, jwt, hash);
 
-    return Response.redirect(redirectUri, STATUS_CODE.Found);
+    return Response.redirect(meetingPage, STATUS_CODE.Found);
   } catch (e) {
     console.error(e);
     return unauthorized();
@@ -329,6 +336,8 @@ async function main() {
   console.log(`HOSTNAME: ${HOSTNAME}`);
   console.log(`PORT: ${PORT}`);
 
+  // Generate and set the crypto key once at the beginning and use the same key
+  // during the process lifetime.
   await setCryptoKey();
 
   Deno.serve({
