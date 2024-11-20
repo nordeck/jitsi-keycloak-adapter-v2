@@ -222,6 +222,14 @@ function generateHash(jsonState: string): string {
     const state = JSON.parse(jsonState) as StateType;
 
     for (const key in state) {
+      // See https://github.com/jitsi/jitsi-meet for allowed hashes.
+      // react/features/authentication/functions.any.ts
+      if (
+        !key.startsWith("config.") &&
+        !key.startsWith("interfaceConfig.") &&
+        !key.startsWith("iceServers.")
+      ) continue;
+
       hash = `${hash}&${encodeURIComponent(key)}`;
       hash = `${hash}=${encodeURIComponent(JSON.stringify(state[key]))}`;
     }
