@@ -10,6 +10,7 @@ docker build -t jitsi-keycloak-adapter-v2 .
 
 ```bash
 docker run \
+  --name adapter \
   -p "9000:9000/TCP" \
   -e KEYCLOAK_ORIGIN=https://ucs-sso-ng.mydomain.corp \
   -e KEYCLOAK_REALM=ucs \
@@ -18,4 +19,10 @@ docker run \
   -e JWT_APP_SECRET=myappsecret \
   -e ALLOW_UNSECURE_CERT=true \
   jitsi-keycloak-adapter-v2
+```
+
+## Stopping the container
+
+```bash
+docker stop adapter
 ```
