@@ -179,7 +179,6 @@ systemctl status oidc-adapter.service
 Add OIDC config:
 
 ```bash
-cd jitsi-keycloak-adapter-v2
 cp templates/etc/jitsi/meet/jaas/oidc.conf /etc/jitsi/meet/jaas/
 ```
 
@@ -190,6 +189,15 @@ systemctl restart nginx
 ```
 
 ## 5. Jitsi-meet
+
+Set `tokenAuthUrl` and `tokenAuthUrlAutoRedirect` in `config.js`:
+
+```bash
+DOMAIN=$(hocon -f /etc/jitsi/jicofo/jicofo.conf get jicofo.xmpp.client.xmpp-domain)
+
+echo "config.tokenAuthUrl = 'https://${DOMAIN}/oidc/auth?state={state}';" >> /etc/jitsi/meet/*-config.js
+echo "config.tokenAuthUrlAutoRedirect = true;" >> /etc/jitsi/meet/*-config.js
+```
 
 ## 6. Guest users
 
