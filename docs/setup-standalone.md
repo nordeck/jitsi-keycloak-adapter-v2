@@ -193,7 +193,7 @@ systemctl restart nginx
 Set `tokenAuthUrl` and `tokenAuthUrlAutoRedirect` in `config.js`:
 
 ```bash
-DOMAIN=$(hocon -f /etc/jitsi/jicofo/jicofo.conf get jicofo.xmpp.client.xmpp-domain)
+DOMAIN=$(hocon -f /etc/jitsi/jicofo/jicofo.conf get jicofo.xmpp.client.xmpp-domain | tr -d '"')
 
 echo "config.tokenAuthUrl = 'https://${DOMAIN}/oidc/auth?state={state}';" >> /etc/jitsi/meet/*-config.js
 echo "config.tokenAuthUrlAutoRedirect = true;" >> /etc/jitsi/meet/*-config.js
