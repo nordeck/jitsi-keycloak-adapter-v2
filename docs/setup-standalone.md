@@ -15,9 +15,9 @@
 - [4. Nginx](#4-nginx)
 - [5. Jitsi-meet](#5-jitsi-meet)
 - [6. Guest users](#6-guest-users)
-  - [6.1 prosody](#61-prosody)
-  - [6.2 jicofo](#62-jicofo)
-  - [6.3 jitsi-meet](#63-jitsi-meet)
+  - [6.1 Prosody](#61-prosody)
+  - [6.2 Jicofo](#62-jicofo)
+  - [6.3 Jitsi-meet](#63-jitsi-meet)
 
 The setup guide to install `Jitsi Keycloak Adapter v2` on a standalone Jitsi
 server.
@@ -204,7 +204,7 @@ echo "config.tokenAuthUrlAutoRedirect = true;" >> /etc/jitsi/meet/*-config.js
 If you want to allow guest users to join the meeting after it's created by a
 moderator then apply the followings.
 
-### 6.1 prosody
+### 6.1 Prosody
 
 Add the guest domain for `prosody`. Create
 _/etc/prosody/conf.avail/guest.cfg.lua_ file with the following contents.
@@ -237,7 +237,7 @@ Restart the `prosody` service
 systemctl restart prosody.service
 ```
 
-### 6.2 jicofo
+### 6.2 Jicofo
 
 Enable `XMPP` authentication for `jicofo`
 
@@ -254,7 +254,7 @@ hocon -f /etc/jitsi/jicofo/jicofo.conf set jicofo.conference.enable-auto-owner f
 systemctl restart jicofo.service
 ```
 
-### 6.3 jitsi-meet
+### 6.3 Jitsi-meet
 
 Set `anonymousdomain` in `config.js`
 
