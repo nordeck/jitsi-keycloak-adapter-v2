@@ -101,9 +101,9 @@ adduser adapter --system --group --disabled-password --shell /bin/bash --home /h
 ```bash
 mkdir -p /home/adapter/app
 cp src/config.ts /home/adapter/app/
-cp src/adapter.sh /home/adapter/app/
 cp src/adapter.ts /home/adapter/app/
 cp src/context.ts /home/adapter/app/
+cp templates/home/adapter/app/adapter.sh /home/adapter/app/
 chown adapter: /home/adapter/app -R
 ```
 
