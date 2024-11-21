@@ -151,8 +151,9 @@ You may also use environment variables instead of updating this config file.
 #### 3.2.4 Production notes
 
 Disable the `testing` line and enable the `prod` line in
-[/home/adapter/app/adapter.sh](../src/adapter.sh) if `keycloak` has a trusted
-certificate. It should be for the production environment.
+[/home/adapter/app/adapter.sh](../templates/home/adapter/app/adapter.sh) if
+`keycloak` has a trusted certificate. It should be for the production
+environment.
 
 ```bash
 # testing: allow self-signed certificate for Keycloak
