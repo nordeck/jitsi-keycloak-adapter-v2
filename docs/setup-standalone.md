@@ -80,6 +80,7 @@ Clone the repository:
 apt-get install git
 
 git clone https://github.com/nordeck/jitsi-keycloak-adapter-v2.git
+cd jitsi-keycloak-adapter-v2
 ```
 
 _As an alternative way, you may download the released package from
@@ -99,10 +100,10 @@ adduser adapter --system --group --disabled-password --shell /bin/bash --home /h
 
 ```bash
 mkdir -p /home/adapter/app
-cp config.ts /home/adapter/app/
-cp adapter.sh /home/adapter/app/
-cp adapter.ts /home/adapter/app/
-cp context.ts /home/adapter/app/
+cp src/config.ts /home/adapter/app/
+cp src/adapter.sh /home/adapter/app/
+cp src/adapter.ts /home/adapter/app/
+cp src/context.ts /home/adapter/app/
 chown adapter: /home/adapter/app -R
 ```
 
