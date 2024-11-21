@@ -12,14 +12,14 @@ with Jitsi's built-in features (_such as `tokenAuthUrl`_).
 
 See
 [jitsi-keycloak-adapter-v1](https://github.com/nordeck/jitsi-keycloak-adapter)
-for the initial design which is still actively supported.
+for the initial design which is still actively maintained.
 
 ## 1. Features
 
 - SSO for `Jitsi` through `Keycloak`. Allows `Jitsi` to run as an `OIDC`
   consumer.
 - Better integration with Jitsi's built-in features for authentication flow.
-- Allows `guest` users and `wait for host` screen if needed
+- Allows `guest` users and `wait for host` screen if needed.
 
 ## 2. Setup
 
