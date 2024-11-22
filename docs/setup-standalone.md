@@ -254,7 +254,7 @@ VirtualHost "<YOUR-DOMAIN>"
 ### 6.3 Guest domain
 
 Add the guest domain for `prosody`. Create
-_/etc/prosody/conf.avail/guest.cfg.lua_ file with the following contents.
+_/etc/prosody/conf.avail/guest.cfg.lua_ file with the following contents:
 
 ```lua
 VirtualHost "guest.domain.loc"
@@ -262,7 +262,7 @@ VirtualHost "guest.domain.loc"
     c2s_require_encryption = false
 ```
 
-Create a symbolic link for this config file.
+Create a symbolic link for this config file:
 
 ```bash
 ln -s ../conf.avail/guest.cfg.lua /etc/prosody/conf.d/
@@ -270,7 +270,7 @@ ln -s ../conf.avail/guest.cfg.lua /etc/prosody/conf.d/
 
 ### 6.4 Restart Prosody
 
-Restart the `prosody` service
+Restart the `prosody` service:
 
 ```bash
 systemctl restart prosody.service
@@ -278,7 +278,7 @@ systemctl restart prosody.service
 
 ### 6.5 Jitsi-meet
 
-Set `anonymousdomain` in `config.js`
+Set `anonymousdomain` in `config.js`:
 
 ```bash
 echo "config.hosts.anonymousdomain = 'guest.domain.loc';" >> /etc/jitsi/meet/*-config.js
