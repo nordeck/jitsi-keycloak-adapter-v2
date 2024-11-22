@@ -256,7 +256,7 @@ Create a symbolic link for this config file.
 ln -s ../conf.avail/guest.cfg.lua /etc/prosody/conf.d/
 ```
 
-### 6.3 Allow empty tokens
+### 6.3 Allow empty token
 
 Set `allow_empty_token` in your `/etc/prosody/conf.d/YOUR-DOMAIN.cfg.lua`:
 
