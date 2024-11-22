@@ -209,7 +209,7 @@ moderator then apply the followings.
 ### 6.1 Wait for host
 
 Enable `persistent_lobby` and `muc_wait_for_host` in your
-`/etc/prosody/conf.d/YOUR-DOMAIN.cfg.lua`.
+`/etc/prosody/conf.d/<YOUR-DOMAIN>.cfg.lua`.
 
 Put `persistent_lobby` into `VirtualHost`'s `modules_enabled`:
 
@@ -258,7 +258,7 @@ ln -s ../conf.avail/guest.cfg.lua /etc/prosody/conf.d/
 
 ### 6.3 Allow empty token
 
-Set `allow_empty_token` in your `/etc/prosody/conf.d/YOUR-DOMAIN.cfg.lua`:
+Set `allow_empty_token` in your `/etc/prosody/conf.d/<YOUR-DOMAIN>.cfg.lua`:
 
 ```lua
 VirtualHost "<YOUR-DOMAIN>"
