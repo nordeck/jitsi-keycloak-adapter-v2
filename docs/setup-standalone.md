@@ -214,7 +214,7 @@ Enable `persistent_lobby` and `muc_wait_for_host` in your
 Put `persistent_lobby` into `VirtualHost`'s `modules_enabled`:
 
 ```lua
-VirtualHost "your.domain.com"
+VirtualHost "<YOUR-DOMAIN>"
     ...
     ...
     modules_enabled = {
@@ -228,7 +228,7 @@ VirtualHost "your.domain.com"
 Put `muc_wait_for_host` into `Component`'s `modules_enabled`:
 
 ```lua
-Component "conference.your.domain.com" "muc"
+Component "conference.<YOUR-DOMAIN>" "muc"
     ...
     ...
     modules_enabled = {
