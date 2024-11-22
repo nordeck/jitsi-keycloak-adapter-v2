@@ -16,8 +16,8 @@
 - [5. Jitsi-meet](#5-jitsi-meet)
 - [6. Guest users](#6-guest-users)
   - [6.1 Wait for host](#61-wait-for-host)
-  - [6.2 Guest domain](#62-guest-domain)
-  - [6.3 Allow empty token](#63-allow-empty-token)
+  - [6.2 Allow empty token](#62-allow-empty-token)
+  - [6.3 Guest domain](#63-guest-domain)
   - [6.4 Restart Prosody](#64-restart-prosody)
   - [6.5 Jitsi-meet](#65-jitsi-meet)
 
@@ -239,7 +239,19 @@ Component "conference.<YOUR-DOMAIN>" "muc"
         ...
 ```
 
-### 6.2 Guest domain
+### 6.2 Allow empty token
+
+Set `allow_empty_token` in your `/etc/prosody/conf.d/<YOUR-DOMAIN>.cfg.lua`:
+
+```lua
+VirtualHost "<YOUR-DOMAIN>"
+    authentication = "token";
+    app_id="<YOUR_APP_ID>"
+    app_secret="<YOUR_APP_SECRET>"
+    allow_empty_token=true
+```
+
+### 6.3 Guest domain
 
 Add the guest domain for `prosody`. Create
 _/etc/prosody/conf.avail/guest.cfg.lua_ file with the following contents.
@@ -254,18 +266,6 @@ Create a symbolic link for this config file.
 
 ```bash
 ln -s ../conf.avail/guest.cfg.lua /etc/prosody/conf.d/
-```
-
-### 6.3 Allow empty token
-
-Set `allow_empty_token` in your `/etc/prosody/conf.d/<YOUR-DOMAIN>.cfg.lua`:
-
-```lua
-VirtualHost "<YOUR-DOMAIN>"
-    authentication = "token";
-    app_id="<YOUR_APP_ID>"
-    app_secret="<YOUR_APP_SECRET>"
-    allow_empty_token=true
 ```
 
 ### 6.4 Restart Prosody
