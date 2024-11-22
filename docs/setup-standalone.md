@@ -15,9 +15,11 @@
 - [4. Nginx](#4-nginx)
 - [5. Jitsi-meet](#5-jitsi-meet)
 - [6. Guest users](#6-guest-users)
-  - [6.1 Prosody](#61-prosody)
-  - [6.2 Jicofo](#62-jicofo)
-  - [6.3 Jitsi-meet](#63-jitsi-meet)
+  - [6.1 Wait for host](#61-wait-for-host)
+  - [6.2 Guest domain](#62-guest-domain)
+  - [6.3 Allow empty token](#63-allow-empty-token)
+  - [6.4 Restart Prosody](#64-restart-prosody)
+  - [6.5 Jitsi-meet](#65-jitsi-meet)
 
 The setup guide to install `Jitsi Keycloak Adapter v2` on a standalone Jitsi
 server.
@@ -204,7 +206,40 @@ echo "config.tokenAuthUrlAutoRedirect = true;" >> /etc/jitsi/meet/*-config.js
 If you want to allow guest users to join the meeting after it's created by a
 moderator then apply the followings.
 
-### 6.1 Prosody
+### 6.1 Wait for host
+
+Enable `persistent_lobby` and `muc_wait_for_host` in your
+`/etc/prosody/conf.d/YOUR-DOMAIN.cfg.lua`.
+
+Put `persistent_lobby` into `VirtualHost`'s `modules_enabled`:
+
+```lua
+VirtualHost "your.domain.com"
+    ...
+    ...
+    modules_enabled = {
+        ...
+        ...
+        "muc_lobby_rooms";
+        "persistent_lobby";
+        ...
+```
+
+Put `muc_wait_for_host` into `Component`'s `modules_enabled`:
+
+```lua
+Component "conference.your.domain.com" "muc"
+    ...
+    ...
+    modules_enabled = {
+        ...
+        ...
+        "token_verification";
+        "muc_wait_for_host";
+        ...
+```
+
+### 6.2 Guest domain
 
 Add the guest domain for `prosody`. Create
 _/etc/prosody/conf.avail/guest.cfg.lua_ file with the following contents.
@@ -221,7 +256,9 @@ Create a symbolic link for this config file.
 ln -s ../conf.avail/guest.cfg.lua /etc/prosody/conf.d/
 ```
 
-Set `allow_empty_token` in your `/etc/prosody/conf.d/YOUR-DOMAIN.cfg.lua`.
+### 6.3 Allow empty tokens
+
+Set `allow_empty_token` in your `/etc/prosody/conf.d/YOUR-DOMAIN.cfg.lua`:
 
 ```lua
 VirtualHost "<YOUR-DOMAIN>"
@@ -231,30 +268,15 @@ VirtualHost "<YOUR-DOMAIN>"
     allow_empty_token=true
 ```
 
+### 6.4 Restart Prosody
+
 Restart the `prosody` service
 
 ```bash
 systemctl restart prosody.service
 ```
 
-### 6.2 Jicofo
-
-Enable `XMPP` authentication for `jicofo`
-
-```bash
-DOMAIN=$(hocon -f /etc/jitsi/jicofo/jicofo.conf get jicofo.xmpp.client.xmpp-domain)
-
-hocon -f /etc/jitsi/jicofo/jicofo.conf set jicofo.authentication.enabled true
-hocon -f /etc/jitsi/jicofo/jicofo.conf set jicofo.authentication.type XMPP
-hocon -f /etc/jitsi/jicofo/jicofo.conf set jicofo.authentication.login-url $DOMAIN
-hocon -f /etc/jitsi/jicofo/jicofo.conf set jicofo.authentication.enable-auto-login false
-hocon -f /etc/jitsi/jicofo/jicofo.conf set jicofo.authentication.authentication-lifetime '100 milliseconds'
-hocon -f /etc/jitsi/jicofo/jicofo.conf set jicofo.conference.enable-auto-owner false
-
-systemctl restart jicofo.service
-```
-
-### 6.3 Jitsi-meet
+### 6.5 Jitsi-meet
 
 Set `anonymousdomain` in `config.js`
 
