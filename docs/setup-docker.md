@@ -46,3 +46,52 @@ docker run -d \
   certificate and this value should be `false` (_it is `false` by default_).
 
 ## 2. Jitsi
+
+### 2.1 Jitsi-keycloak-adapter-v2 as a proxy
+
+Create a proxy config for Jitsi's `web` container. If you have a docker-compose
+environment, this file should be `~/.jitsi-meet-cfg/web/nginx-custom/oidc.conf`.
+Update the address of `proxy_pass` according to your environment.
+
+```config
+location ~ /oidc/ {
+    proxy_pass http://172.17.17.1:9000;
+    proxy_http_version 1.1;
+    proxy_set_header X-Forwarded-For $remote_addr;
+    proxy_set_header Host $http_host;
+}
+```
+
+I use `172.17.17.1` in this example because this is the IP address of my host
+machine and Jitsi's `web` container can access my `jitsi-keycloak-adapter-v2`
+using this IP and port.
+
+### 2.2 Token authentication
+
+Set the following environment variables to enable the token authentication for
+`Jitsi`:
+
+- Enable authentication
+
+  `ENABLE_AUTH=1`
+
+- But not for `jicofo`
+
+  `JICOFO_ENABLE_AUTH=0`
+
+- Select the authentication type
+
+  `AUTH_TYPE=jwt`
+
+- Application identifier
+
+  `JWT_APP_ID=myappid`
+
+- Application secret known only to your token generators (_such as_
+  `jitsi-keycloak-adapter-v2`)
+
+  `JWT_APP_SECRET=myappsecret`
+
+- Set `tokenAuthUrl` according to your domain
+
+  `TOKEN_AUTH_URL=https://my.jitsi.tld/oidc/auth?state={state}`
