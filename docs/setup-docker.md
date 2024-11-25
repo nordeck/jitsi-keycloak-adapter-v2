@@ -52,7 +52,7 @@ docker run -d \
 ### 2.1 Keycloak adapter as a proxy
 
 Create a proxy config for Jitsi's `web` container. If you have a docker-compose
-environment, this file should be `~/.jitsi-meet-cfg/web/nginx-custom/oidc.conf`.
+environment, this file should be ```~/.jitsi-meet-cfg/web/nginx-custom/oidc.conf```.
 Update the address of `proxy_pass` according to your environment.
 
 ```config
