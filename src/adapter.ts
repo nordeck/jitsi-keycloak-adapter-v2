@@ -216,7 +216,7 @@ async function generateJwt(
 // Generate hashes for Jitsi session.
 // -----------------------------------------------------------------------------
 function generateHash(jsonState: string): string {
-  let hash = "adapter=jitsi-keycloak-adapter-v2";
+  let hash = "adapter=true";
 
   try {
     const state = JSON.parse(jsonState) as StateType;
