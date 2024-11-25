@@ -4,6 +4,8 @@
 
 - [1. Keycloak Adapter](#1-keycloak-adapter)
 - [2. Jitsi](#2-jitsi)
+  - [2.1 Keycloak adapter as a proxy](#21-keycloak-adapter-as-a-proxy)
+  - [2.2 Token authentication](#22-token-authentication)
 
 The setup guide to integrate `Jitsi Keycloak Adapter v2` with a Dockerized Jitsi
 setup.
@@ -47,7 +49,7 @@ docker run -d \
 
 ## 2. Jitsi
 
-### 2.1 Jitsi-keycloak-adapter-v2 as a proxy
+### 2.1 Keycloak adapter as a proxy
 
 Create a proxy config for Jitsi's `web` container. If you have a docker-compose
 environment, this file should be `~/.jitsi-meet-cfg/web/nginx-custom/oidc.conf`.
@@ -64,7 +66,7 @@ location ~ /oidc/ {
 
 I use `172.17.17.1` in this example because this is the IP address of my host
 machine and Jitsi's `web` container can access my `jitsi-keycloak-adapter-v2`
-using this IP and port.
+container using this IP and port.
 
 ### 2.2 Token authentication
 
