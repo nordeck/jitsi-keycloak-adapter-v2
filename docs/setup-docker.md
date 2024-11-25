@@ -6,6 +6,7 @@
 - [2. Jitsi](#2-jitsi)
   - [2.1 Keycloak adapter as a proxy](#21-keycloak-adapter-as-a-proxy)
   - [2.2 Token authentication](#22-token-authentication)
+  - [2.3 Guest participants](#23-guest-participants)
 
 The setup guide to integrate `Jitsi Keycloak Adapter v2` with a Dockerized Jitsi
 setup.
@@ -33,7 +34,7 @@ docker run -d \
   ghcr.io/nordeck/jitsi-keycloak-adapter-v2
 ```
 
-- `KEYCLOAK_ORIGIN` must be resolvable and accessible for users and the
+- `KEYCLOAK_ORIGIN` must be resolvable and accessible for participants and the
   container.
 
 - Set `KEYCLOAK_ORIGIN_INTERNAL` if `KEYCLOAK_ORIGIN` is not accessible for the
@@ -52,7 +53,7 @@ docker run -d \
 ### 2.1 Keycloak adapter as a proxy
 
 Create a proxy config for Jitsi's `web` container. If you have a docker-compose
-environment, this file should be ```~/.jitsi-meet-cfg/web/nginx-custom/oidc.conf```.
+environment, this file should be `~/.jitsi-meet-cfg/web/nginx-custom/oidc.conf`.
 Update the address of `proxy_pass` according to your environment.
 
 ```config
@@ -75,11 +76,11 @@ Set the following environment variables to enable the token authentication for
 
 - Enable authentication
 
-  `ENABLE_AUTH=1`
+  `ENABLE_AUTH=true`
 
 - But not for `jicofo`
 
-  `JICOFO_ENABLE_AUTH=0`
+  `JICOFO_ENABLE_AUTH=false`
 
 - Select the authentication type
 
@@ -97,3 +98,20 @@ Set the following environment variables to enable the token authentication for
 - Set `tokenAuthUrl` according to your domain
 
   `TOKEN_AUTH_URL=https://my.jitsi.tld/oidc/auth?state={state}`
+
+### 2.3 Guest participants
+
+Set the following environment variables to allow guest participants and to
+activate "wait for host" feature:
+
+- Enable guest participants
+
+  `ENABLE_GUESTS=true`
+
+- Enable the persistent lobby module
+
+  `XMPP_MODULES=persistent_lobby`
+
+- Enable the wait for host module
+
+  `XMPP_MUC_MODULES=muc_wait_for_host`
