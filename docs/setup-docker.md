@@ -19,6 +19,7 @@ Tested with Jitsi `stable-9823` images.
 
 ```bash
 docker run -d \
+  --name adapter \
   -p "9000:9000/TCP" \
   -e KEYCLOAK_ORIGIN=https://my.keycloak.tld \
   -e KEYCLOAK_ORIGIN_INTERNAL= \
@@ -34,13 +35,13 @@ docker run -d \
   container.
 
 - Set `KEYCLOAK_ORIGIN_INTERNAL` if `KEYCLOAK_ORIGIN` is not accessible for the
-  container and the container should access `Keycloak` by using this internal
+  container and the container should access `Keycloak` by using an internal
   address.
 
-- `JWT_APP_ID` and `JWT_APP_SECRET` must be the same for both `keycloak-adapter`
-  and `jitsi`.
+- `JWT_APP_ID` and `JWT_APP_SECRET` must be the same for both
+  `jitsi-keycloak-adapter-v2` and Jitsi containers.
 
-- Set `ALLOW_UNSECURE_CERT` as `true` if `Keycloak` has not a trusted
+- Set `ALLOW_UNSECURE_CERT` to `true` if `Keycloak` has not a trusted
   certificate. For the production environment, `Keycloak` should have a trusted
   certificate and this value should be `false` (_it is `false` by default_).
 
