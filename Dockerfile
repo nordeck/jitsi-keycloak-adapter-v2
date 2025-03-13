@@ -1,10 +1,24 @@
+# ------------------------------------------------------------------------------
+# trivy to generate SBOM
+# ------------------------------------------------------------------------------
+FROM ghcr.io/aquasecurity/trivy:latest AS trivy
+
+RUN \
+  trivy image --format spdx-json --output /container.json denoland/deno
+
+# ------------------------------------------------------------------------------
+# prod
+# ------------------------------------------------------------------------------
 FROM denoland/deno
-LABEL version="v20250117"
+LABEL version="v20250313"
 
 WORKDIR /app
 
 COPY src/config.ts src/context.ts src/adapter.ts /app/
 RUN deno cache /app/adapter.ts
+
+COPY --from=trivy /container.json /sbom/container.json
+RUN deno info /app/adapter.ts --json > /sbom/application-dependencies.json
 
 ENV KEYCLOAK_ORIGIN "https://ucs-sso-ng.mydomain.corp"
 ENV KEYCLOAK_ORIGIN_INTERNAL ""
