@@ -254,7 +254,8 @@ VirtualHost "<YOUR-HOSTNAME>"
 ### 6.3 VirtualHost for Guest
 
 Add the guest config for `prosody`. Create
-_/etc/prosody/conf.avail/guest.cfg.lua_ file with the following contents:
+_/etc/prosody/conf.avail/guest.cfg.lua_ file with the following contents. Update
+<YOUR-HOSTNAME> according to your hostname.
 
 ```lua
 VirtualHost "guest.<YOUR-HOSTNAME>"
