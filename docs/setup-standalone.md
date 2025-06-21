@@ -17,7 +17,7 @@
 - [6. Guest users](#6-guest-users)
   - [6.1 Wait for host](#61-wait-for-host)
   - [6.2 Allow empty token](#62-allow-empty-token)
-  - [6.3 Guest domain](#63-guest-domain)
+  - [6.3 VirtualHost for Guest](#63-virtualhost-for-guest)
   - [6.4 Restart Prosody](#64-restart-prosody)
   - [6.5 Jitsi-meet](#65-jitsi-meet)
 
@@ -37,11 +37,11 @@ Enable the token authentication for `prosody`.
 apt-get install jitsi-meet-tokens
 ```
 
-Check related parameters in your `/etc/prosody/conf.d/YOUR-DOMAIN.cfg.lua`. They
-should be already set by `apt-get` command.
+Check related parameters in your `/etc/prosody/conf.d/YOUR-HOSTNAME.cfg.lua`.
+They should be already set by `apt-get` command.
 
 ```lua
-VirtualHost "<YOUR-DOMAIN>"
+VirtualHost "<YOUR-HOSTNAME>"
     authentication = "token";
     app_id="<YOUR_APP_ID>"
     app_secret="<YOUR_APP_SECRET>"
@@ -195,7 +195,7 @@ systemctl restart nginx
 Set `tokenAuthUrl` and `tokenAuthUrlAutoRedirect` in `config.js`:
 
 ```bash
-DOMAIN=$(hocon -f /etc/jitsi/jicofo/jicofo.conf get jicofo.xmpp.client.xmpp-domain | tr -d '"')
+DOMAIN=$(hocon -f /etc/jitsi/jicofo/jicofo.conf get jicofo.xmpp.client.xmpp-domain | xargs)
 
 echo "config.tokenAuthUrl = 'https://${DOMAIN}/oidc/auth?state={state}';" >> /etc/jitsi/meet/*-config.js
 echo "config.tokenAuthUrlAutoRedirect = true;" >> /etc/jitsi/meet/*-config.js
@@ -209,12 +209,12 @@ moderator then apply the followings.
 ### 6.1 Wait for host
 
 Enable `persistent_lobby` and `muc_wait_for_host` in your
-`/etc/prosody/conf.d/<YOUR-DOMAIN>.cfg.lua`.
+`/etc/prosody/conf.d/<YOUR-HOSTNAME>.cfg.lua`.
 
 Put `persistent_lobby` into `VirtualHost`'s `modules_enabled`:
 
 ```lua
-VirtualHost "<YOUR-DOMAIN>"
+VirtualHost "<YOUR-HOSTNAME>"
     ...
     ...
     modules_enabled = {
@@ -228,7 +228,7 @@ VirtualHost "<YOUR-DOMAIN>"
 Put `muc_wait_for_host` into `Component`'s `modules_enabled`:
 
 ```lua
-Component "conference.<YOUR-DOMAIN>" "muc"
+Component "conference.<YOUR-HOSTNAME>" "muc"
     ...
     ...
     modules_enabled = {
@@ -241,23 +241,23 @@ Component "conference.<YOUR-DOMAIN>" "muc"
 
 ### 6.2 Allow empty token
 
-Set `allow_empty_token` in your `/etc/prosody/conf.d/<YOUR-DOMAIN>.cfg.lua`:
+Set `allow_empty_token` in your `/etc/prosody/conf.d/<YOUR-HOSTNAME>.cfg.lua`:
 
 ```lua
-VirtualHost "<YOUR-DOMAIN>"
+VirtualHost "<YOUR-HOSTNAME>"
     authentication = "token";
     app_id="<YOUR_APP_ID>"
     app_secret="<YOUR_APP_SECRET>"
     allow_empty_token=true
 ```
 
-### 6.3 Guest domain
+### 6.3 VirtualHost for Guest
 
-Add the guest domain for `prosody`. Create
+Add the guest config for `prosody`. Create
 _/etc/prosody/conf.avail/guest.cfg.lua_ file with the following contents:
 
 ```lua
-VirtualHost "guest.domain.loc"
+VirtualHost "guest.<YOUR-HOSTNAME>"
     authentication = "jitsi-anonymous"
     c2s_require_encryption = false
 ```
@@ -281,5 +281,7 @@ systemctl restart prosody.service
 Set `anonymousdomain` in `config.js`:
 
 ```bash
-echo "config.hosts.anonymousdomain = 'guest.domain.loc';" >> /etc/jitsi/meet/*-config.js
+DOMAIN=$(hocon -f /etc/jitsi/jicofo/jicofo.conf get jicofo.xmpp.client.xmpp-domain | xargs)
+
+echo "config.hosts.anonymousdomain = 'guest.$DOMAIN';" >> /etc/jitsi/meet/*-config.js
 ```
