@@ -135,9 +135,9 @@ You may also use environment variables instead of updating this config file.
 
 - `KEYCLOAK_CLIENT_SECRET`
 
-   Keycloak client secret\
-   Required if client authentication is enabled in Keycloak, must be empty
-   otherwise.
+  Keycloak client secret\
+  Required if client authentication is enabled in Keycloak, must be empty
+  otherwise.
 
 - `JWT_APP_ID`
 
@@ -248,11 +248,15 @@ Component "conference.<YOUR-HOSTNAME>" "muc"
         ...
 ```
 
-If you want to control user levels using a thirdd-party module then add the
+If you want to control user levels using a third-party module then add the
 following line into the `muc` block:
 
 ```
+Component "conference.<YOUR-HOSTNAME>" "muc"
+    ...
+    ...
     wait_for_host_disable_auto_owners = true
+    ...
 ```
 
 ### 6.2 Allow empty token
