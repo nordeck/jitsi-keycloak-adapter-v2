@@ -248,6 +248,13 @@ Component "conference.<YOUR-HOSTNAME>" "muc"
         ...
 ```
 
+If you want to control user levels using a thirdd-party module then add the
+following line into the `muc` block:
+
+```
+    wait_for_host_disable_auto_owners = true
+```
+
 ### 6.2 Allow empty token
 
 Set `allow_empty_token` in your `/etc/prosody/conf.d/<YOUR-HOSTNAME>.cfg.lua`:
