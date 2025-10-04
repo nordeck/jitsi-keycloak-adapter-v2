@@ -1,4 +1,5 @@
 import { STATUS_CODE } from "jsr:@std/http@^1.0.20/status";
+import { encodeBase64 } from "jsr:@std/encoding@^1.0.10/base64";
 import { create, getNumericDate } from "jsr:@emrahcom/jwt@^0.4.7";
 import type { Algorithm } from "jsr:@emrahcom/jwt@^0.4.7/algorithm";
 import {
@@ -9,6 +10,7 @@ import {
   JWT_EXP_SECOND,
   JWT_HASH,
   KEYCLOAK_CLIENT_ID,
+  KEYCLOAK_CLIENT_SECRET,
   KEYCLOAK_MODE,
   KEYCLOAK_ORIGIN,
   KEYCLOAK_ORIGIN_INTERNAL,
@@ -146,17 +148,28 @@ async function getAccessToken(
   // Dont encode qs because it will be encoded when inserted into data.
   const qs = `state=${state}`;
   const redirectUri = `https://${host}/oidc/tokenize?${qs}`;
+
+  const headers = new Headers();
+  headers.append("Accept", "application/json");
+
   const data = new URLSearchParams();
-  data.append("client_id", KEYCLOAK_CLIENT_ID);
   data.append("grant_type", "authorization_code");
   data.append("redirect_uri", redirectUri);
   data.append("code", code);
 
+  if (KEYCLOAK_CLIENT_SECRET) {
+    headers.append(
+      "Authorization",
+      "Basic " +
+        encodeBase64(`${KEYCLOAK_CLIENT_ID}:${KEYCLOAK_CLIENT_SECRET}`),
+    );
+  } else {
+    data.append("client_id", KEYCLOAK_CLIENT_ID);
+  }
+
   // Send the request for the access token.
   const res = await fetch(KEYCLOAK_TOKEN_URI, {
-    headers: {
-      "Accept": "application/json",
-    },
+    headers: headers,
     method: "POST",
     body: data,
   });
@@ -335,6 +348,11 @@ async function main() {
   console.log(`KEYCLOAK_ORIGIN_INTERNAL: ${KEYCLOAK_ORIGIN_INTERNAL}`);
   console.log(`KEYCLOAK_REALM: ${KEYCLOAK_REALM}`);
   console.log(`KEYCLOAK_CLIENT_ID: ${KEYCLOAK_CLIENT_ID}`);
+  console.log(
+    `KEYCLOAK_CLIENT_SECRET: ${
+      KEYCLOAK_CLIENT_SECRET ? "*** masked ***" : "not used"
+    }`,
+  );
   console.log(`KEYCLOAK_MODE: ${KEYCLOAK_MODE}`);
   console.log(`JWT_ALG: ${JWT_ALG}`);
   console.log(`JWT_HASH: ${JWT_HASH}`);
