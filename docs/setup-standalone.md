@@ -189,6 +189,7 @@ systemctl status oidc-adapter.service
 Add OIDC config:
 
 ```bash
+mkdir -p /etc/jitsi/meet/jaas
 cp templates/etc/jitsi/meet/jaas/oidc.conf /etc/jitsi/meet/jaas/
 ```
 
