@@ -106,9 +106,8 @@ function auth(req: Request): Response {
     if (!jsonState) throw "state not found";
 
     const state = encodeURIComponent(jsonState);
-    const qs = encodeURIComponent(`state=${state}`);
-    const redirectUri = `https://${host}/oidc/tokenize?${qs}`;
-    const keycloakAuthPage = `${KEYCLOAK_AUTH_URI}&redirect_uri=${redirectUri}`;
+    const redirectUri = `https://${host}/oidc/tokenize`;
+    const keycloakAuthPage = `${KEYCLOAK_AUTH_URI}&redirect_uri=${redirectUri}&state=${state}`;
 
     return Response.redirect(keycloakAuthPage, STATUS_CODE.Found);
   } catch (e) {
@@ -145,9 +144,7 @@ async function getAccessToken(
 ): Promise<string> {
   const state = encodeURIComponent(jsonState);
 
-  // Dont encode qs because it will be encoded when inserted into data.
-  const qs = `state=${state}`;
-  const redirectUri = `https://${host}/oidc/tokenize?${qs}`;
+  const redirectUri = `https://${host}/oidc/tokenize`;
 
   const headers = new Headers();
   headers.append("Accept", "application/json");
@@ -156,6 +153,7 @@ async function getAccessToken(
   data.append("grant_type", "authorization_code");
   data.append("redirect_uri", redirectUri);
   data.append("code", code);
+  data.append("state", state);
 
   if (KEYCLOAK_CLIENT_SECRET) {
     headers.append(
