@@ -6,9 +6,11 @@
 - [4. Similar projects](#4-similar-projects)
 - [5. Sponsors](#5-sponsors)
 
-Allow Jitsi to use Keycloak as an identity and OIDC provider. This is the second
-generation of `jitsi-keycloak-adapter` designed for better integration with
-Jitsi's built-in features such as `tokenAuthUrl`, `muc_wait_for_host`, etc.
+Allow Jitsi to use Keycloak as an identity and OIDC provider.
+
+This is the second generation of `jitsi-keycloak-adapter` designed for better
+integration with Jitsi's built-in features such as `tokenAuthUrl`,
+`muc_wait_for_host`, etc.
 
 See
 [jitsi-keycloak-adapter-v1](https://github.com/nordeck/jitsi-keycloak-adapter)
