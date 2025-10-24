@@ -6,9 +6,9 @@
 - [4. Similar projects](#4-similar-projects)
 - [5. Sponsors](#5-sponsors)
 
-Allow `Jitsi` to use `Keycloak` as an identity and `OIDC` provider. This is the
-second generation of `jitsi-keycloak-adapter` designed for better integration
-with Jitsi's built-in features such as `tokenAuthUrl`, `muc_wait_for_host`, etc.
+Allow Jitsi to use Keycloak as an identity and OIDC provider. This is the second
+generation of `jitsi-keycloak-adapter` designed for better integration with
+Jitsi's built-in features such as `tokenAuthUrl`, `muc_wait_for_host`, etc.
 
 See
 [jitsi-keycloak-adapter-v1](https://github.com/nordeck/jitsi-keycloak-adapter)
@@ -16,28 +16,27 @@ for the initial design which is still actively maintained.
 
 ## 1. Features
 
-- SSO for `Jitsi` through `Keycloak`. Allows `Jitsi` to run as an `OIDC`
-  consumer.
+- SSO for Jitsi through Keycloak. Allows Jitsi to run as an OIDC consumer.
 - Better integration with Jitsi's built-in features for authentication flow.
-- Allows `guest` users and `wait for host` screen if needed.
+- Allows guest users and `wait for host` screen if needed.
 
 ## 2. Setup
 
 See [standalone setup](./docs/setup-standalone.md) guide to install it on a
-standalone `Jitsi` server.
+standalone Jitsi server.
 
 See [Docker setup](./docs/setup-docker.md) guide to integrate it with a
-Dockerized `Jitsi` setup.
+Dockerized Jitsi setup.
 
 ## 3. Keycloak configuration
 
 Create `client` inside `realm`.
 
 - Set `client id`
-- Add `Jitsi` URL into `Valid redirect URIs`\
-  e.g. `https://jitsi.mydomain.com/*`
-- Add `Jitsi` URL into `Web origins`\
-  e.g. `https://jitsi.mydomain.com` or just use `+`
+- Add Jitsi's URL into `Valid redirect URIs`\
+  _e.g. `https://jitsi.mydomain.com/*`_
+- Add Jitsi's URL into `Web origins`\
+  _e.g. `https://jitsi.mydomain.com` or just use `+`_
 - Set `Access type`
   - For Keycloak versions `< 20.x`, set `Access type` to `public`:
 
