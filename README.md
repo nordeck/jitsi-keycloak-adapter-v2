@@ -35,9 +35,9 @@ Dockerized Jitsi setup.
 Create `client` inside `realm`.
 
 - Set `client id`
-- Add Jitsi's URL into `Valid redirect URIs`\
-  _e.g. `https://jitsi.mydomain.com/*`_
-- Add Jitsi's URL into `Web origins`\
+- Add Jitsi's token page URL to `Valid redirect URIs`\
+  _e.g. `https://jitsi.mydomain.com/oidc/tokenize`_
+- Add Jitsi's origin to `Web origins`\
   _e.g. `https://jitsi.mydomain.com` or just use `+`_
 - Set `Access type`
   - For Keycloak versions `< 20.x`, set `Access type` to `public`:
