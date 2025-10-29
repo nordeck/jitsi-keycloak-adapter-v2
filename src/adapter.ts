@@ -107,7 +107,8 @@ function auth(req: Request): Response {
 
     const state = encodeURIComponent(jsonState);
     const redirectUri = `https://${host}/oidc/tokenize`;
-    const keycloakAuthPage = `${KEYCLOAK_AUTH_URI}&redirect_uri=${redirectUri}&state=${state}`;
+    const keycloakAuthPage =
+      `${KEYCLOAK_AUTH_URI}&redirect_uri=${redirectUri}&state=${state}`;
 
     return Response.redirect(keycloakAuthPage, STATUS_CODE.Found);
   } catch (e) {
@@ -143,7 +144,6 @@ async function getAccessToken(
   jsonState: string,
 ): Promise<string> {
   const state = encodeURIComponent(jsonState);
-
   const redirectUri = `https://${host}/oidc/tokenize`;
 
   const headers = new Headers();
