@@ -8,6 +8,7 @@ export const KEYCLOAK_CLIENT_ID = Deno.env.get("KEYCLOAK_CLIENT_ID") || "jitsi";
 export const KEYCLOAK_CLIENT_SECRET = Deno.env.get("KEYCLOAK_CLIENT_SECRET") ||
   "";
 export const KEYCLOAK_MODE = Deno.env.get("KEYCLOAK_MODE") || "query";
+export const KEYCLOAK_PROMPT = Deno.env.get("KEYCLOAK_PROMPT") || "consent";
 
 // jwt
 export const JWT_ALG = Deno.env.get("JWT_ALG") || "HS256";
