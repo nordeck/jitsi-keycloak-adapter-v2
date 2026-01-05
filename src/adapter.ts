@@ -18,6 +18,7 @@ import {
   PORT,
 } from "./config.ts";
 import { createContext } from "./context.ts";
+import type { KeycloakUserInfo } from "./context.ts";
 
 // -----------------------------------------------------------------------------
 // Globals
@@ -183,7 +184,7 @@ async function getAccessToken(
 // -----------------------------------------------------------------------------
 async function getUserInfo(
   accessToken: string,
-): Promise<Record<string, unknown>> {
+): Promise<KeycloakUserInfo> {
   // Send request for the user info.
   const res = await fetch(KEYCLOAK_USERINFO_URI, {
     headers: {
@@ -192,7 +193,7 @@ async function getUserInfo(
     },
     method: "GET",
   });
-  const userInfo = await res.json();
+  const userInfo = await res.json() as KeycloakUserInfo;
 
   // Sub is the mandotary field in response for a successful request.
   if (!userInfo.sub) throw "no user info";
@@ -206,7 +207,7 @@ async function getUserInfo(
 async function generateJwt(
   sub: string,
   room: string,
-  userInfo: Record<string, unknown>,
+  userInfo: KeycloakUserInfo,
 ): Promise<string> {
   const header = { typ: "JWT", alg: JWT_ALG as Algorithm };
   const payload = {
