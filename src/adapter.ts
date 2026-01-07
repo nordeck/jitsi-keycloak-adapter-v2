@@ -15,6 +15,8 @@ import {
   KEYCLOAK_ORIGIN,
   KEYCLOAK_ORIGIN_INTERNAL,
   KEYCLOAK_REALM,
+  KEYCLOAK_PROMPT,
+  KEYCLOAK_SCOPE,
   PORT,
 } from "./config.ts";
 import { createContext } from "./context.ts";
@@ -26,7 +28,7 @@ import type { KeycloakUserInfo } from "./context.ts";
 const KEYCLOAK_AUTH_URI = `${KEYCLOAK_ORIGIN}` +
   `/realms/${KEYCLOAK_REALM}/protocol/openid-connect/auth` +
   `?client_id=${KEYCLOAK_CLIENT_ID}&response_mode=${KEYCLOAK_MODE}` +
-  `&response_type=code&scope=openid&prompt=consent`;
+  `&response_type=code&scope=${KEYCLOAK_SCOPE}&prompt=${KEYCLOAK_PROMPT}`;
 const KEYCLOAK_TOKEN_URI = `${KEYCLOAK_ORIGIN_INTERNAL}` +
   `/realms/${KEYCLOAK_REALM}/protocol/openid-connect/token`;
 const KEYCLOAK_USERINFO_URI = `${KEYCLOAK_ORIGIN_INTERNAL}` +
