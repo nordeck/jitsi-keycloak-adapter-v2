@@ -37,6 +37,13 @@ interface StateType {
   [key: string]: boolean | string;
 }
 
+const enum ClientType {
+  ios,
+  android,
+  electron,
+  browser,
+}
+
 // -----------------------------------------------------------------------------
 // HTTP response for OK
 // -----------------------------------------------------------------------------
@@ -254,6 +261,7 @@ function generateHash(jsonState: string): string {
 
 // -----------------------------------------------------------------------------
 // Create URI of the Jitsi meeting with a token and hashes.
+// Use URI scheme depending on the detected client type.
 // -----------------------------------------------------------------------------
 function getMeetingUri(
   host: string,
@@ -261,12 +269,25 @@ function getMeetingUri(
   room: string,
   jwt: string,
   hash: string,
+  client: ClientType
 ): string {
   path = path || "";
 
+  const clientUriScheme: Record<ClientType, string> = {
+    [ClientType.ios]: "org.jitsi.meet",
+    [ClientType.android]: "intent",
+    [ClientType.electron]: "jitsi-meet",
+    [ClientType.browser]: "https",
+  };
+
   let uri = `${host}/${path}/${room}`;
   uri = uri.replace(/\/+/g, "/");
-  uri = `https://${uri}?jwt=${jwt}#${hash}`;
+  const scheme = clientUriScheme[client];
+  uri = `${scheme}://${uri}?jwt=${jwt}#${hash}`;
+  if (client == ClientType.android)
+  {
+    uri += "#Intent;scheme=org.jitsi.meet;package=org.jitsi.meet;end"
+  }
 
   return uri;
 }
@@ -293,6 +314,21 @@ async function tokenize(req: Request): Promise<Response> {
     const sub = getSub(host, state.tenant);
     const room = state.room;
 
+    // Detect client type
+    let client = ClientType.browser;
+    if (state.ios)
+    {
+      client = ClientType.ios;
+    }
+    else if (state.android)
+    {
+      client = ClientType.android;
+    }
+    else if (state.electron)
+    {
+      client = ClientType.electron;
+    }
+
     // Get the access token from Keycloak using the short-term auth code.
     const accessToken = await getAccessToken(host, code, jsonState);
 
@@ -308,9 +344,33 @@ async function tokenize(req: Request): Promise<Response> {
     // Get URI of the Jitsi meeting.
     // Use unmodified path (state.tenant) which is different than the tenant in
     // JWT context.
-    const meetingPage = getMeetingUri(host, state.tenant, room, jwt, hash);
+    const meetingPage = getMeetingUri(host, state.tenant, room, jwt, hash, client);
 
-    return Response.redirect(meetingPage, STATUS_CODE.Found);
+    if (client == ClientType.browser)
+    {
+      // Normal browser client: redirect to meeting page
+      return Response.redirect(meetingPage, STATUS_CODE.Found);
+    }
+    else
+    {
+      // Show page in web browser that feeds JWT to other clients via auto-refresh
+      const body = `<!DOCTYPE html>
+<html>
+<head>
+<title>Authentication successful</title>
+</head>
+<body>
+<h3>Authentication successful.</h3>
+<p>You can close this tab and go back to your Jitsi client.</p>
+</body>
+</html>`;
+      return new Response(body, {
+        headers: {
+          "refresh": `0; url=${meetingPage}`,
+          "content-type": "text/html",
+        }
+      });
+    }
   } catch (e) {
     console.error(e);
     return unauthorized();
