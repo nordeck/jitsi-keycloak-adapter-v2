@@ -269,7 +269,7 @@ function getMeetingUri(
   room: string,
   jwt: string,
   hash: string,
-  client: ClientType
+  client: ClientType,
 ): string {
   path = path || "";
 
@@ -280,13 +280,13 @@ function getMeetingUri(
     [ClientType.browser]: "https",
   };
 
+  const scheme = clientUriScheme[client];
+
   let uri = `${host}/${path}/${room}`;
   uri = uri.replace(/\/+/g, "/");
-  const scheme = clientUriScheme[client];
   uri = `${scheme}://${uri}?jwt=${jwt}#${hash}`;
-  if (client == ClientType.android)
-  {
-    uri += "#Intent;scheme=org.jitsi.meet;package=org.jitsi.meet;end"
+  if (client == ClientType.android) {
+    uri += "#Intent;scheme=org.jitsi.meet;package=org.jitsi.meet;end";
   }
 
   return uri;
@@ -316,16 +316,11 @@ async function tokenize(req: Request): Promise<Response> {
 
     // Detect client type
     let client = ClientType.browser;
-    if (state.ios)
-    {
+    if (state.ios) {
       client = ClientType.ios;
-    }
-    else if (state.android)
-    {
+    } else if (state.android) {
       client = ClientType.android;
-    }
-    else if (state.electron)
-    {
+    } else if (state.electron) {
       client = ClientType.electron;
     }
 
@@ -344,31 +339,36 @@ async function tokenize(req: Request): Promise<Response> {
     // Get URI of the Jitsi meeting.
     // Use unmodified path (state.tenant) which is different than the tenant in
     // JWT context.
-    const meetingPage = getMeetingUri(host, state.tenant, room, jwt, hash, client);
+    const meetingPage = getMeetingUri(
+      host,
+      state.tenant,
+      room,
+      jwt,
+      hash,
+      client,
+    );
 
-    if (client == ClientType.browser)
-    {
+    if (client == ClientType.browser) {
       // Normal browser client: redirect to meeting page
       return Response.redirect(meetingPage, STATUS_CODE.Found);
-    }
-    else
-    {
+    } else {
       // Show page in web browser that feeds JWT to other clients via auto-refresh
       const body = `<!DOCTYPE html>
-<html>
-<head>
-<title>Authentication successful</title>
-</head>
-<body>
-<h3>Authentication successful.</h3>
-<p>You can close this tab and go back to your Jitsi client.</p>
-</body>
-</html>`;
+        <html>
+        <head>
+         <title>Authentication successful</title>
+        </head>
+        <body>
+          <h3>Authentication successful.</h3>
+          <p>You can close this tab and go back to your Jitsi client.</p>
+        </body>
+        </html>`;
+
       return new Response(body, {
         headers: {
           "refresh": `0; url=${meetingPage}`,
           "content-type": "text/html",
-        }
+        },
       });
     }
   } catch (e) {
