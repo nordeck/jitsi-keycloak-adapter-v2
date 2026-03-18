@@ -19,7 +19,7 @@ for the initial design which is still actively maintained.
 See
 [jitsi-oidc-adapter](https://github.com/jitsi-contrib/jitsi-oidc-adapter)
 for a general-purpose OIDC adapter. It also supports Keycloak.\
-**PLEASE SWITCH TO THIS VERSION TO GET NEW IMPROVEMENTS.**
+**PLEASE SWITCH TO THIS VERSION TO GET NEW FEATURES.**
 
 ## 1. Features
 
