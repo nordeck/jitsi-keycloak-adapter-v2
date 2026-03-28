@@ -47,7 +47,7 @@ jobs:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
             type=raw,value=latest
-            type=raw,value=${{ env.BUILD_DATE }}
+            type=raw,value=v${{ env.BUILD_DATE }}
 
       - name: Build and push
         uses: docker/build-push-action@v7
